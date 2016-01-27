@@ -7,6 +7,7 @@ package dagaz.controllers;
 
 import dagaz.entities.MatchState;
 import dagaz.exception.ArenaNotAvailable;
+import dagaz.util.WaitFor;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -80,10 +81,6 @@ public class ChildController {
 
     public void placeBet() throws ArenaNotAvailable {
         if (isActive) {
-            if (!driver.getCurrentUrl().contains(config.getCurrentSession())) {
-                driver.get(config.getTargetURL() + "?session=" + config.getCurrentSession());
-                driver.manage().window().maximize();
-            }
             if (!isReady()) {
                 WebDriverWait wait = new WebDriverWait(driver, 10);
                 try {
@@ -117,16 +114,16 @@ public class ChildController {
                             }
                             betNow();
                         } catch (Exception e) {
-                            config.getTaDetails().append("\n[ERROR]\n\t[" + arena + "] Failed to place bet.");
+                            config.getRoot().appendDetails("[ERROR]\n\t[" + arena + "] Failed to place bet.");
                         }
                     }
                     if (!match.isLastState() && match.isStateChanged() && !match.isIsPlaced()) {
-                        config.getTaDetails().append("\n- [" + arena + "] - [" + match.getMatchNumber() + "] Missssssssss...................");
+                        config.getRoot().appendDetails("- [" + arena + "] - [" + match.getMatchNumber() + "] Missssssssss...................");
                     }
                 }
             } else {
                 if (!isWaitForMatch && !isAlreadyNotice) {
-                    config.getTaDetails().append("\n[" + arena + "] No matches available.");
+                    config.getRoot().appendDetails("[" + arena + "] No matches available.");
                     isAlreadyNotice = true;
                 }
             }
@@ -170,13 +167,13 @@ public class ChildController {
                         action.moveToElement(element, screenRegion.getCenter().getX() + 40,
                                 300 + screenRegion.getCenter().getY() - (120 - (nextChannel * 20))).click().build().perform();
                         channel = nextChannel;
-                        config.getTaDetails().append("\n\t ---- Connection trouble ----\n\t[" + arena + "] - Switching to channel #" + channel + "\n\t---------------");
+                        config.getRoot().appendDetails("\t ---- Connection trouble ----\n\t[" + arena + "] - Switching to channel #" + channel + "\n\t---------------");
                     }
                 }
             }
         } catch (IOException ex) {
             Logger.getLogger(ChildController.class.getName()).log(Level.SEVERE, null, ex);
-            config.getTaDetails().append("\n- [" + arena + "] - Failed to switch channel.");
+            config.getRoot().appendDetails("- [" + arena + "] - Failed to switch channel.");
         }
     }
 
@@ -207,55 +204,54 @@ public class ChildController {
     private void betNow() {
         if (isAboutToClose()) {
             WebElement btnBet = driver.findElement(By.id("choose-" + config.getBetSide(arena).toLowerCase()));
-            config.getTaDetails().append("\n- [" + arena + "] - [" + match.getMatchNumber() + "]");
-            config.getTaDetails().append("\n\tMeron Bet Rate: " + match.getHomeBetRate() + " - Trend: " + match.getHomeBetTrend());
-            config.getTaDetails().append("\n\tWala Bet Rate: " + match.getAwayBetRate() + " - Trend: " + match.getAwayBetTrend());
-            config.getTaDetails().append("\n\tDraw Bet Rate: " + match.getDrawBetRate() + " - Trend: " + match.getDrawBetTrend());
+            config.getRoot().appendDetails("- [" + arena + "] - [" + match.getMatchNumber() + "]");
+            config.getRoot().appendDetails("\tMeron Bet Rate: " + match.getHomeBetRate() + " - Trend: " + match.getHomeBetTrend());
+            config.getRoot().appendDetails("\tWala Bet Rate: " + match.getAwayBetRate() + " - Trend: " + match.getAwayBetTrend());
+            config.getRoot().appendDetails("\tDraw Bet Rate: " + match.getDrawBetRate() + " - Trend: " + match.getDrawBetTrend());
             if (btnBet.isEnabled() && isMatchCondition()) {
                 btnBet.click();
                 driver.findElement(By.id("input-stake")).sendKeys(config.getBetCoin(arena));
                 driver.findElement(By.id("place-bet")).click();
                 closeDialog();
-                config.getTaDetails().append("\n\tSide: " + config.getBetSide(arena) + " - Coin: " + config.getBetCoin(arena));
-                config.getTaDetails().append("\n\tPlace bet after " + match.getBetOpenElapsedTime() + "s");
+                config.getRoot().appendDetails("\tSide: " + config.getBetSide(arena) + " - Coin: " + config.getBetCoin(arena));
+                config.getRoot().appendDetails("\tPlace bet after " + match.getBetOpenElapsedTime() + "s");
                 match.setIsPlaced(true);
             } else {
-                config.getTaDetails().append("\n\tSkippppp...........Not match the condition.");
+                config.getRoot().appendDetails("\tSkippppp...........Not match the condition.");
                 match.setIsPlaced(true);
             }
         }
         if (!isConnectionReady() && match.getBetOpenElapsedTime() > 40) {
             WebElement btnBet = driver.findElement(By.id("choose-" + config.getBetSide(arena).toLowerCase()));
-            config.getTaDetails().append("\n- [" + arena + "] - [" + match.getMatchNumber() + "]");
-            config.getTaDetails().append("\n ---- Connection trouble ----");
-            config.getTaDetails().append("\n\tMeron Bet Rate: " + match.getHomeBetRate() + " - Trend: " + match.getHomeBetTrend());
-            config.getTaDetails().append("\n\tWala Bet Rate: " + match.getAwayBetRate() + " - Trend: " + match.getAwayBetTrend());
-            config.getTaDetails().append("\n\tDraw Bet Rate: " + match.getDrawBetRate() + " - Trend: " + match.getDrawBetTrend());
+            config.getRoot().appendDetails("- [" + arena + "] - [" + match.getMatchNumber() + "]");
+            config.getRoot().appendDetails(" ---- Connection trouble ----");
+            config.getRoot().appendDetails("\tMeron Bet Rate: " + match.getHomeBetRate() + " - Trend: " + match.getHomeBetTrend());
+            config.getRoot().appendDetails("\tWala Bet Rate: " + match.getAwayBetRate() + " - Trend: " + match.getAwayBetTrend());
+            config.getRoot().appendDetails("\tDraw Bet Rate: " + match.getDrawBetRate() + " - Trend: " + match.getDrawBetTrend());
             if (btnBet.isEnabled() && isMatchCondition()) {
                 btnBet.click();
                 driver.findElement(By.id("input-stake")).sendKeys(config.getBetCoin(arena));
                 driver.findElement(By.id("place-bet")).click();
                 closeDialog();
-                config.getTaDetails().append("\n\tSide: " + config.getBetSide(arena) + " - Coin: " + config.getBetCoin(arena));
-                config.getTaDetails().append("\n\tPlace bet after " + match.getBetOpenElapsedTime() + "s");
+                config.getRoot().appendDetails("\tSide: " + config.getBetSide(arena) + " - Coin: " + config.getBetCoin(arena));
+                config.getRoot().appendDetails("\tPlace bet after " + match.getBetOpenElapsedTime() + "s");
                 match.setIsPlaced(true);
             } else {
-                config.getTaDetails().append("\n\tSkippppp...........Not match the condition.");
+                config.getRoot().appendDetails("\tSkippppp...........Not match the condition.");
                 match.setIsPlaced(true);
             }
         }
     }
 
     private void closeDialog() {
-        WebDriverWait wait = new WebDriverWait(driver, 3);
         try {
-            WebElement ttlDialog = wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.xpath("//span[@class='ui-dialog-title']"))));
-            if (ttlDialog.getText().equals("Match Cancelled")) {
-                driver.findElement(By.xpath("//button[@class='ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-close']")).click();
-            }
-            if (ttlDialog.getText().equals("...")) {
-                driver.findElement(By.xpath("//div[@class='ui-dialog-buttonset']/button/span[text()='Yes']")).click();
-            }
+            (new WaitFor(driver, 3000)).visibility("//span[@class='ui-dialog-title']");
+//            if (ttlDialog.getText().equals("Match Cancelled")) {
+//                driver.findElement(By.xpath("//button[@class='ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-close']")).click();
+//            }
+//            if (ttlDialog.getText().equals("...")) {
+//                driver.findElement(By.xpath("//div[@class='ui-dialog-buttonset']/button/span[text()='Yes']")).click();
+//            }
         } catch (Exception ex) {
         }
     }
@@ -297,19 +293,19 @@ public class ChildController {
         int drawWin = Integer.parseInt(driver.findElement(By.id("win-win")).getText());
         if (this.homeWin < homeWin) {
             if (homeWin == (this.homeWin + 1)) {
-                config.getTaDetails().append("\n[RESULT] \n\t- [" + arena + "] - [" + matchNumber + "] Meron win.");
+                config.getRoot().appendDetails("[RESULT] \n\t- [" + arena + "] - [" + matchNumber + "] Meron win.");
             }
             this.homeWin = homeWin;
         }
         if (this.awayWin < awayWin) {
             if (awayWin == (this.awayWin + 1)) {
-                config.getTaDetails().append("\n[RESULT] \n\t- [" + arena + "] - [" + matchNumber + "] Wala win.");
+                config.getRoot().appendDetails("[RESULT] \n\t- [" + arena + "] - [" + matchNumber + "] Wala win.");
             }
             this.awayWin = awayWin;
         }
         if (this.drawWin < drawWin) {
             if (drawWin == (this.drawWin + 1)) {
-                config.getTaDetails().append("\n[RESULT] \n\t- [" + arena + "] - [" + matchNumber + "] Draw.");
+                config.getRoot().appendDetails("[RESULT] \n\t- [" + arena + "] - [" + matchNumber + "] Draw.");
             }
             this.drawWin = drawWin;
         }

@@ -5,6 +5,7 @@
  */
 package dagaz.controllers;
 
+import dagaz.gui.Dagaz;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,24 +17,23 @@ import javax.swing.JTextArea;
  */
 public class Configuration {
 
-    private String targetURL;
+    private String targetURL = "http://www.sv88.net/";
     private String username;
     private String password;
     private ArrayList<String> arenas;
-    private String currentSession;
     private boolean isNeedRenew = true;
     private Map<String, String> betSide;
     private Map<String, String> betCoin;
     private Map<String, ArrayList<Integer>> betOnly;
-    private JTextArea taDetails;
     private boolean isKeepRunning = true;
+    private Dagaz root;
 
-    public Configuration(String targetURL, String username, String password, ArrayList<String> arenas, JTextArea taDetails) {
+    public Configuration(String username, String password, ArrayList<String> arenas, Dagaz root) {
         this.targetURL = targetURL;
         this.username = username;
         this.password = password;
         this.arenas = arenas;
-        this.taDetails = taDetails;
+        this.root = root;
         betCoin = new HashMap<String, String>();
         betSide = new HashMap<String, String>();
         betOnly = new HashMap<String, ArrayList<Integer>>();
@@ -41,10 +41,6 @@ public class Configuration {
 
     public String getTargetURL() {
         return targetURL;
-    }
-
-    public void setTargetURL(String targetURL) {
-        this.targetURL = targetURL;
     }
 
     public String getUsername() {
@@ -69,14 +65,6 @@ public class Configuration {
 
     public void setArenas(ArrayList<String> arenas) {
         this.arenas = arenas;
-    }
-
-    public String getCurrentSession() {
-        return currentSession;
-    }
-
-    public void setCurrentSession(String currentSession) {
-        this.currentSession = currentSession;
     }
 
     public boolean isIsNeedRenew() {
@@ -123,8 +111,8 @@ public class Configuration {
         this.betOnly.remove(arenaName);
     }
 
-    public JTextArea getTaDetails() {
-        return taDetails;
+    public Dagaz getRoot() {
+        return root;
     }
 
     public boolean isIsKeepRunning() {

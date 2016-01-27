@@ -44,14 +44,14 @@ public class SingleThread implements Runnable {
 
     @Override
     public void run() {
-        config.getTaDetails().append("\n" + getName());
+        config.getRoot().appendDetails(getName());
         while (config.isIsKeepRunning()) {
             try {
                 if (driver == null || config.isIsNeedRenew() || !isLoggedIn()) {
                     try {
                         renewWindows();
                     } catch (Exception ex) {
-                        config.getTaDetails().append("\nERROR: " + ex.getMessage());
+                        config.getRoot().appendDetails("ERROR: " + ex.getMessage());
                     }
                 }
                 if (childControllers != null && childControllers.size() > 0) {
@@ -62,14 +62,14 @@ public class SingleThread implements Runnable {
                                 childController.placeBet();
                             }
                         } catch (ArenaNotAvailable ex) {
-                            config.getTaDetails().append("\nArena [" + childController.getArena() + "] is not available! Removing the arena from the active list.");
+                            config.getRoot().appendDetails("Arena [" + childController.getArena() + "] is not available! Removing the arena from the active list.");
                             config.setIsNeedRenew(true);
                         } catch (NoSuchElementException e) {
-                            config.getTaDetails().append("\nArena [" + childController.getArena() + "] is not available! Removing the arena from the active list.");
-                            config.getTaDetails().append("\n" + e.getMessage());
+                            config.getRoot().appendDetails("Arena [" + childController.getArena() + "] is not available! Removing the arena from the active list.");
+                            config.getRoot().appendDetails(e.getMessage());
                             config.setIsNeedRenew(true);
                         } catch (SessionNotFoundException ex) {
-                            config.getTaDetails().append("\nDriver seems to be died. Killing now.....");
+                            config.getRoot().appendDetails("Driver seems to be died. Killing now.....");
                             config.setIsNeedRenew(true);
                         } catch (Exception ex) {
                             Logger.getLogger(SingleThread.class.getName()).log(Level.SEVERE, null, ex);
@@ -94,13 +94,13 @@ public class SingleThread implements Runnable {
                 config.setIsNeedRenew(true);
             }
         }
-        config.getTaDetails().append("\nquiting..........");
+        config.getRoot().appendDetails("--------- Quiting..........");
         driver.quit();
     }
 
     private void renewWindows() throws Exception {
         resetRenewTimeStamp();
-        config.getTaDetails().append("\n--- Renewing..........");
+        config.getRoot().appendDetails("--- Renewing..........");
         if (driver != null) {
             driver.quit();
             driver = null;
@@ -120,13 +120,13 @@ public class SingleThread implements Runnable {
             if (availableArenas.contains(arena)) {
                 matchedArenas.add(arena);
             } else {
-                config.getTaDetails().append("\nArena [" + arena + "] is not available at the moment.");
+                config.getRoot().appendDetails("Arena [" + arena + "] is not available at the moment.");
             }
         }
 
         if (matchedArenas.size() < 1) {
-            config.getTaDetails().append("\nAvailable Arenas: " + availableArenas);
-            config.getTaDetails().append("\nDemand Arenas: " + config.getArenas());
+            config.getRoot().appendDetails("Available Arenas: " + availableArenas);
+            config.getRoot().appendDetails("Demand Arenas: " + config.getArenas());
             throw new Exception("No matched Arena. Please check the selected Arenas!");
         }
         while (driver.getWindowHandles().size() < matchedArenas.size()) {
@@ -168,7 +168,7 @@ public class SingleThread implements Runnable {
         for (WebElement we : btnClose) {
             we.click();
         }
-        config.setCurrentSession(getSession());
+        config.getRoot().appendDetails(getSession());
         availableArenas = new ArrayList<String>();
         availableArenas = getAvailableArenas();
     }

@@ -5,28 +5,6 @@
  */
 package dagaz;
 
-import dagaz.controllers.ChildController;
-import java.awt.AWTException;
-import java.awt.event.InputEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.Point;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.interactions.Actions;
-import org.sikuli.api.ImageTarget;
-import org.sikuli.api.ScreenRegion;
-import org.sikuli.api.StaticImageScreenRegion;
-
 /**
  *
  * @author Hyungin Choi

@@ -38,7 +38,7 @@ public class Dagaz extends javax.swing.JFrame {
         DefaultCaret caret = (DefaultCaret) taDetails.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         configs = new ArrayList<Configuration>();
-        Configuration cf = new Configuration("http://www.s128.net", "hcr030108", "Qaz12345", new ArrayList<String>(), this.taDetails);
+        Configuration cf = new Configuration("hcr030108", "Qaz12345", new ArrayList<String>(), this);
         configs.add(cf);
         currentConfig = configs.get(0);
         updateForm();
@@ -58,21 +58,21 @@ public class Dagaz extends javax.swing.JFrame {
     private void showCredentialsDialog() {
         JTextField txtUsername = new JTextField();
         JTextField txtPassword = new JTextField();
-        JTextField txtTargetURL = new JTextField();
         JLabel lblUsername = new JLabel("Username");
         JLabel lblPassword = new JLabel("Password");
-        JLabel lblTargetURL = new JLabel("Link");
         JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(lblTargetURL);
-        panel.add(txtTargetURL);
         panel.add(lblUsername);
         panel.add(txtUsername);
         panel.add(lblPassword);
         panel.add(txtPassword);
         int result = JOptionPane.showConfirmDialog(this, panel, "Username/Password", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            configs.add(new Configuration(txtTargetURL.getText(), txtUsername.getText(), txtPassword.getText(), new ArrayList<String>(), this.taDetails));
+            configs.add(new Configuration(txtUsername.getText(), txtPassword.getText(), new ArrayList<String>(), this));
         }
+    }
+
+    public void appendDetails(String str) {
+        taDetails.append("\n" + str);
     }
 
     /**
@@ -433,7 +433,7 @@ public class Dagaz extends javax.swing.JFrame {
             if (configs.size() > 1) {
                 configs.remove(cbbAccount.getSelectedIndex());
                 currentConfig = configs.get(0);
-            }else{
+            } else {
                 JOptionPane.showMessageDialog(this, "Cannot delete the last one!");
             }
         }
